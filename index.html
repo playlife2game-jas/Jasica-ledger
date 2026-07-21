@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#4B1F9E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jasica's Business">
+<title>Jasica's Business Pvt Ltd — Loan Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B1035;
+    --ink-soft:#5A4B7A;
+    --paper:#FDF9FF;
+    --paper-line:#e9def5;
+    --violet:#6E3AC9;
+    --violet-deep:#4B1F9E;
+    --magenta:#D63FA6;
+    --gold:#F0A93B;
+    --gold-soft:#FCE3B4;
+    --profit:#1E8A5F;
+    --loss:#E0483A;
+    --card:#ffffff;
+    --shadow: 0 2px 4px rgba(75,31,158,0.08), 0 10px 28px rgba(75,31,158,0.10);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 8% 0%, rgba(214,63,166,0.18), transparent 45%),
+      radial-gradient(circle at 92% 15%, rgba(110,58,201,0.20), transparent 40%),
+      radial-gradient(circle at 50% 100%, rgba(240,169,59,0.14), transparent 45%),
+      var(--paper);
+    font-family:'IBM Plex Sans', sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+  }
+  .app{max-width:920px;margin:0 auto;padding:28px 20px 80px;}
+  header.top{
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;
+    background:linear-gradient(120deg, var(--violet-deep), var(--violet) 55%, var(--magenta));
+    border-radius:16px;padding:22px 26px;box-shadow:var(--shadow);
+    position:relative;overflow:hidden;
+  }
+  header.top::after{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(circle at 85% -20%, rgba(255,255,255,0.25), transparent 55%);
+    pointer-events:none;
+  }
+  header.top h1{
+    font-family:'Fraunces', serif;
+    font-weight:900;
+    font-size:28px;
+    letter-spacing:-0.01em;
+    margin:0;
+    color:#fff;
+    position:relative;
+  }
+  header.top .tagline{font-size:12px;color:var(--gold-soft);letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-top:4px;position:relative;}
+  nav.tabs{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
+  nav.tabs button{
+    font-family:'IBM Plex Sans';
+    font-weight:600;
+    font-size:13.5px;
+    padding:10px 18px;
+    border:1.5px solid var(--violet);
+    background:#fff;
+    color:var(--violet-deep);
+    border-radius:999px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  nav.tabs button.active{background:linear-gradient(120deg, var(--violet), var(--magenta));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(110,58,201,0.35);}
+  nav.tabs button:hover:not(.active){background:var(--gold-soft);border-color:var(--gold);}
+  section.panel{display:none;}
+  section.panel.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  .card{background:var(--card);border:1px solid var(--paper-line);border-radius:14px;box-shadow:var(--shadow);padding:22px;margin-bottom:18px;}
+  .card h2{font-family:'Fraunces',serif;font-size:19px;margin:0 0 14px;font-weight:700;color:var(--violet-deep);}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:560px){.grid{grid-template-columns:1fr;}}
+  label{font-size:12px;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:4px;letter-spacing:.02em;}
+  input, select, textarea{
+    width:100%;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+    padding:9px 10px;
+    border:1.5px solid #e2d3f2;
+    border-radius:8px;
+    background:#fdfbff;
+    color:var(--ink);
+  }
+  input:focus, select:focus, textarea:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 3px rgba(110,58,201,0.15);}
+  .field{margin-bottom:12px;}
+  .profit-preview{
+    display:flex;justify-content:space-between;align-items:center;
+    background:linear-gradient(120deg, var(--ink), var(--violet-deep));color:#fff;
+    border-radius:10px;padding:14px 18px;margin-top:6px;
+  }
+  .profit-preview .val{font-family:'IBM Plex Mono';font-size:22px;font-weight:700;}
+  .profit-preview.neg .val{color:#ffb4a6;}
+  .profit-preview.pos .val{color:#8ff0c2;}
+  button.primary{
+    background:linear-gradient(120deg, var(--violet), var(--magenta));color:#fff;border:none;font-weight:700;
+    padding:12px 22px;border-radius:9px;cursor:pointer;font-size:14px;
+    margin-top:10px;box-shadow:0 4px 14px rgba(214,63,166,0.35);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  button.primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(214,63,166,0.45);}
+  button.ghost{background:transparent;border:1.5px solid var(--ink-soft);color:var(--ink-soft);padding:6px 12px;border-radius:6px;font-size:12.5px;cursor:pointer;font-weight:600;}
+  button.ghost:hover{background:var(--gold-soft);border-color:var(--gold);color:var(--ink);}
+  button.danger{border-color:var(--loss);color:var(--loss);}
+
+  table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono';font-size:13px;}
+  thead th{text-align:left;font-family:'IBM Plex Sans';font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#fff;background:linear-gradient(120deg, var(--violet-deep), var(--violet));padding:9px 8px;}
+  thead th:first-child{border-radius:8px 0 0 8px;}
+  thead th:last-child{border-radius:0 8px 8px 0;}
+  tbody td{padding:9px 8px;border-bottom:1px solid var(--paper-line);}
+  tbody tr:hover{background:#faf2ff;}
+  .profit-cell.pos{color:var(--profit);font-weight:700;}
+  .profit-cell.neg{color:var(--loss);font-weight:700;}
+  .row-actions{display:flex;gap:6px;}
+  .table-wrap{overflow-x:auto;}
+
+  .summary-strip{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
+  .stat{flex:1;min-width:130px;background:var(--card);border:1px solid var(--paper-line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);border-top:3px solid var(--gold);}
+  .stat .label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:4px;}
+  .stat .num{font-family:'IBM Plex Mono';font-size:20px;font-weight:700;color:var(--violet-deep);}
+
+  .export-row{display:flex;gap:10px;flex-wrap:wrap;align-items:end;}
+  .export-row .field{flex:1;min-width:140px;margin-bottom:0;}
+
+  .goal-card{border:1px solid var(--paper-line);border-radius:14px;padding:16px;margin-bottom:14px;background:var(--card);box-shadow:var(--shadow);}
+  .goal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .goal-name{font-family:'Fraunces',serif;font-weight:700;font-size:17px;color:var(--ink);}
+  .goal-bar-bg{height:12px;border-radius:8px;background:#f1e6fb;overflow:hidden;margin:8px 0;}
+  .goal-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--magenta),var(--violet));}
+  .goal-meta{display:flex;justify-content:space-between;font-family:'IBM Plex Mono';font-size:12.5px;color:var(--ink-soft);}
+  .empty{color:var(--ink-soft);font-size:13.5px;padding:20px;text-align:center;}
+  .icon-pick{display:flex;gap:6px;flex-wrap:wrap;}
+  .icon-pick button{border:1.5px solid #e2d3f2;background:#fff;border-radius:9px;padding:8px 10px;font-size:18px;cursor:pointer;}
+  .icon-pick button.sel{border-color:var(--violet);background:var(--gold-soft);box-shadow:0 0 0 2px rgba(110,58,201,0.15);}
+  small.hint{color:var(--ink-soft);font-size:11.5px;display:block;margin-top:4px;}
+  .preset-goals{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .preset-goals button{
+    display:flex;align-items:center;gap:6px;
+    border:1.5px solid #e2d3f2;background:#fff;border-radius:999px;
+    padding:8px 14px;font-size:13px;font-weight:600;color:var(--violet-deep);cursor:pointer;
+    transition:all .12s ease;
+  }
+  .preset-goals button:hover{background:linear-gradient(120deg, var(--violet), var(--magenta));color:#fff;border-color:transparent;}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div>
+      <h1>Jasica's Business Pvt Ltd</h1>
+      <div class="tagline">Loan Takeover &amp; DSA Ledger</div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button data-tab="entries" class="active">Customer Entries</button>
+    <button data-tab="expenses">Daily Expenses</button>
+    <button data-tab="goals">My Goals</button>
+    <button data-tab="reports">Reports &amp; Export</button>
+  </nav>
+
+  <!-- ENTRIES -->
+  <section class="panel active" id="panel-entries">
+    <div class="summary-strip" id="entrySummary"></div>
+    <div class="card">
+      <h2 id="entryFormTitle">New Customer Entry</h2>
+      <div class="grid">
+        <div class="field"><label>Date</label><input type="date" id="f-date"></div>
+        <div class="field"><label>Customer Name</label><input type="text" id="f-name" placeholder="e.g. Ramesh Kumar"></div>
+        <div class="field"><label>Contact Number</label><input type="tel" id="f-contact" placeholder="10-digit number"></div>
+        <div class="field"><label>Loan Amount (₹)</label><input type="number" id="f-loan" placeholder="0"></div>
+        <div class="field"><label>Takeover Amount (₹)</label><input type="number" id="f-takeover" placeholder="0"></div>
+        <div class="field"><label>Takeover Charges (₹)</label><input type="number" id="f-tcharges" placeholder="0"></div>
+        <div class="field"><label>DSA Charges (₹)</label><input type="number" id="f-dsa" placeholder="0"></div>
+        <div class="field"><label>Balance Amount (₹)</label><input type="number" id="f-balance" placeholder="0"></div>
+      </div>
+      <div class="profit-preview" id="profitPreview">
+        <span>Profit = (Takeover Charges − DSA Charges) − Balance Amount — calculates automatically</span>
+        <span class="val" id="profitVal">₹0</span>
+      </div>
+      <button class="primary" id="saveEntryBtn">Save Entry</button>
+      <button class="ghost" id="cancelEditBtn" style="display:none;margin-left:8px;">Cancel edit</button>
+    </div>
+    <div class="card">
+      <h2>All Entries</h2>
+      <div class="table-wrap"><table id="entryTable">
+        <thead><tr><th>Date</th><th>Customer</th><th>Contact</th><th>Loan</th><th>Takeover</th><th>Profit</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+      <div class="empty" id="entryEmpty" style="display:none;">No entries yet. Add your first customer above.</div>
+    </div>
+  </section>
+
+  <!-- EXPENSES -->
+  <section class="panel" id="panel-expenses">
+    <div class="summary-strip" id="expenseSummary"></div>
+    <div class="card">
+      <h2 id="expenseFormTitle">Add Expense</h2>
+      <div class="grid">
+        <div class="field"><label>Date</label><input type="date" id="e-date"></div>
+        <div class="field"><label>Amount (₹)</label><input type="number" id="e-amount" placeholder="0"></div>
+      </div>
+      <div class="field"><label>Description</label><input type="text" id="e-desc" placeholder="e.g. Office rent, fuel, food"></div>
+      <button class="primary" id="saveExpenseBtn">Save Expense</button>
+      <button class="ghost" id="cancelExpenseEditBtn" style="display:none;margin-left:8px;">Cancel edit</button>
+    </div>
+    <div class="card">
+      <h2>Expense Log</h2>
+      <div class="table-wrap"><table id="expenseTable">
+        <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+      <div class="empty" id="expenseEmpty" style="display:none;">No expenses logged yet.</div>
+    </div>
+  </section>
+
+  <!-- GOALS -->
+  <section class="panel" id="panel-goals">
+    <div class="card">
+      <h2>Net Savings Available for Goals</h2>
+      <div class="profit-preview" id="netFundPreview"><span>Total Profit − Total Expenses</span><span class="val" id="netFundVal">₹0</span></div>
+      <small class="hint">This is what funds your goals below. Update target prices yourself whenever market prices change.</small>
+    </div>
+    <div class="card">
+      <h2 id="goalFormTitle">Add a Goal</h2>
+      <div class="preset-goals" id="presetGoals">
+        <button type="button" data-icon="🏠" data-name="House">🏠 House</button>
+        <button type="button" data-icon="🚗" data-name="Car">🚗 Car</button>
+        <button type="button" data-icon="🏍️" data-name="Bike">🏍️ Bike</button>
+        <button type="button" data-icon="🧊" data-name="Home Appliances">🧊 Appliances</button>
+        <button type="button" data-icon="📱" data-name="Mobile Phone">📱 Mobile</button>
+        <button type="button" data-icon="💍" data-name="Jewellery">💍 Jewellery</button>
+      </div>
+      <div class="grid">
+        <div class="field"><label>Goal Name</label><input type="text" id="g-name" placeholder="e.g. Honda City, 2BHK Flat"></div>
+        <div class="field"><label>Target Price (₹)</label><input type="number" id="g-target" placeholder="0"></div>
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <div class="icon-pick" id="iconPick">
+          <button type="button" data-icon="🏠">🏠</button>
+          <button type="button" data-icon="🚗">🚗</button>
+          <button type="button" data-icon="🏍️">🏍️</button>
+          <button type="button" data-icon="📱">📱</button>
+          <button type="button" data-icon="🧊">🧊</button>
+          <button type="button" data-icon="💍">💍</button>
+          <button type="button" data-icon="🎯">🎯</button>
+        </div>
+      </div>
+      <button class="primary" id="saveGoalBtn">Save Goal</button>
+      <button class="ghost" id="cancelGoalEditBtn" style="display:none;margin-left:8px;">Cancel edit</button>
+    </div>
+    <div id="goalsList"></div>
+    <div class="empty" id="goalsEmpty" style="display:none;">No goals yet. Add your first dream target above.</div>
+  </section>
+
+  <!-- REPORTS -->
+  <section class="panel" id="panel-reports">
+    <div class="card">
+      <h2>Download Entries</h2>
+      <div class="export-row">
+        <div class="field">
+          <label>Period</label>
+          <select id="r-period">
+            <option value="daily">Daily</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+            <option value="all">All time</option>
+          </select>
+        </div>
+        <div class="field"><label>Pick date</label><input type="date" id="r-date"></div>
+        <div class="field" style="flex:0;"><button class="primary" id="exportEntriesBtn">Download CSV</button></div>
+      </div>
+      <small class="hint">Daily uses the exact date. Monthly uses that date's month. Yearly uses that date's year.</small>
+    </div>
+    <div class="card">
+      <h2>Download Expenses</h2>
+      <div class="export-row">
+        <div class="field">
+          <label>Period</label>
+          <select id="r-eperiod">
+            <option value="daily">Daily</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+            <option value="all">All time</option>
+          </select>
+        </div>
+        <div class="field"><label>Pick date</label><input type="date" id="r-edate"></div>
+        <div class="field" style="flex:0;"><button class="primary" id="exportExpensesBtn">Download CSV</button></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const KEY_ENTRIES = 'khata-customer-entries';
+const KEY_EXPENSES = 'khata-expenses';
+const KEY_GOALS = 'khata-goals';
+
+let entries = [];
+let expenses = [];
+let goals = [];
+let editingEntryId = null;
+let editingExpenseId = null;
+let editingGoalId = null;
+let selectedIcon = '🎯';
+
+const fmt = n => '₹' + Number(n||0).toLocaleString('en-IN');
+const todayStr = () => new Date().toISOString().slice(0,10);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+async function load(){
+  try{ entries = JSON.parse(localStorage.getItem(KEY_ENTRIES) || '[]'); }catch(e){ entries = []; }
+  try{ expenses = JSON.parse(localStorage.getItem(KEY_EXPENSES) || '[]'); }catch(e){ expenses = []; }
+  try{ goals = JSON.parse(localStorage.getItem(KEY_GOALS) || '[]'); }catch(e){ goals = []; }
+  renderAll();
+}
+async function saveEntries(){ localStorage.setItem(KEY_ENTRIES, JSON.stringify(entries)); }
+async function saveExpenses(){ localStorage.setItem(KEY_EXPENSES, JSON.stringify(expenses)); }
+async function saveGoals(){ localStorage.setItem(KEY_GOALS, JSON.stringify(goals)); }
+
+function computeProfit(e){
+  return (Number(e.tcharges||0) - Number(e.dsa||0)) - Number(e.balance||0);
+}
+
+// ---- TABS ----
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('section.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ---- ENTRY FORM ----
+const fDate=document.getElementById('f-date'), fName=document.getElementById('f-name'),
+  fContact=document.getElementById('f-contact'), fLoan=document.getElementById('f-loan'),
+  fTakeover=document.getElementById('f-takeover'), fTcharges=document.getElementById('f-tcharges'),
+  fDsa=document.getElementById('f-dsa'), fBalance=document.getElementById('f-balance');
+fDate.value = todayStr();
+
+function updateProfitPreview(){
+  const draft = {tcharges:fTcharges.value, dsa:fDsa.value, balance:fBalance.value};
+  const p = computeProfit(draft);
+  const el = document.getElementById('profitVal');
+  el.textContent = fmt(p);
+  const box = document.getElementById('profitPreview');
+  box.classList.toggle('pos', p>=0);
+  box.classList.toggle('neg', p<0);
+}
+[fTcharges,fDsa,fBalance].forEach(i=>i.addEventListener('input', updateProfitPreview));
+
+document.getElementById('saveEntryBtn').addEventListener('click', async ()=>{
+  if(!fName.value.trim()){ alert('Please enter customer name'); return; }
+  const rec = {
+    id: editingEntryId || uid(),
+    date: fDate.value || todayStr(),
+    name: fName.value.trim(),
+    contact: fContact.value.trim(),
+    loan: Number(fLoan.value||0),
+    takeover: Number(fTakeover.value||0),
+    tcharges: Number(fTcharges.value||0),
+    dsa: Number(fDsa.value||0),
+    balance: Number(fBalance.value||0),
+  };
+  if(editingEntryId){
+    const idx = entries.findIndex(x=>x.id===editingEntryId);
+    entries[idx] = rec;
+  } else {
+    entries.unshift(rec);
+  }
+  await saveEntries();
+  resetEntryForm();
+  renderEntries();
+});
+
+document.getElementById('cancelEditBtn').addEventListener('click', resetEntryForm);
+
+function resetEntryForm(){
+  editingEntryId = null;
+  fDate.value = todayStr(); fName.value=''; fContact.value=''; fLoan.value='';
+  fTakeover.value=''; fTcharges.value=''; fDsa.value=''; fBalance.value='';
+  document.getElementById('entryFormTitle').textContent = 'New Customer Entry';
+  document.getElementById('cancelEditBtn').style.display='none';
+  updateProfitPreview();
+}
+
+function editEntry(id){
+  const e = entries.find(x=>x.id===id);
+  if(!e) return;
+  editingEntryId = id;
+  fDate.value=e.date; fName.value=e.name; fContact.value=e.contact; fLoan.value=e.loan;
+  fTakeover.value=e.takeover; fTcharges.value=e.tcharges; fDsa.value=e.dsa; fBalance.value=e.balance;
+  document.getElementById('entryFormTitle').textContent = 'Edit Customer Entry';
+  document.getElementById('cancelEditBtn').style.display='inline-block';
+  updateProfitPreview();
+  document.getElementById('panel-entries').scrollIntoView({behavior:'smooth'});
+}
+
+async function deleteEntry(id){
+  if(!confirm('Delete this entry?')) return;
+  entries = entries.filter(x=>x.id!==id);
+  await saveEntries();
+  renderEntries();
+}
+
+function renderEntries(){
+  const tbody = document.querySelector('#entryTable tbody');
+  tbody.innerHTML='';
+  document.getElementById('entryEmpty').style.display = entries.length? 'none':'block';
+  entries.slice().sort((a,b)=> b.date.localeCompare(a.date)).forEach(e=>{
+    const p = computeProfit(e);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${e.date}</td><td>${escapeHtml(e.name)}</td><td>${escapeHtml(e.contact||'-')}</td>
+      <td>${fmt(e.loan)}</td><td>${fmt(e.takeover)}</td>
+      <td class="profit-cell ${p>=0?'pos':'neg'}">${fmt(p)}</td>
+      <td class="row-actions">
+        <button class="ghost" data-edit="${e.id}">Edit</button>
+        <button class="ghost danger" data-del="${e.id}">Delete</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>editEntry(b.dataset.edit)));
+  tbody.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>deleteEntry(b.dataset.del)));
+
+  const totalProfit = entries.reduce((s,e)=>s+computeProfit(e),0);
+  const totalLoan = entries.reduce((s,e)=>s+Number(e.loan||0),0);
+  const summary = document.getElementById('entrySummary');
+  summary.innerHTML = `
+    <div class="stat"><div class="label">Total Entries</div><div class="num">${entries.length}</div></div>
+    <div class="stat"><div class="label">Total Loan Value</div><div class="num">${fmt(totalLoan)}</div></div>
+    <div class="stat"><div class="label">Total Profit</div><div class="num" style="color:${totalProfit>=0?'var(--profit)':'var(--loss)'}">${fmt(totalProfit)}</div></div>
+  `;
+  renderGoals(); // net fund depends on entries
+}
+
+// ---- EXPENSES ----
+const eDate=document.getElementById('e-date'), eAmount=document.getElementById('e-amount'), eDesc=document.getElementById('e-desc');
+eDate.value = todayStr();
+
+document.getElementById('saveExpenseBtn').addEventListener('click', async ()=>{
+  if(!eDesc.value.trim() || !eAmount.value){ alert('Please enter description and amount'); return; }
+  const rec = { id: editingExpenseId || uid(), date: eDate.value||todayStr(), desc: eDesc.value.trim(), amount: Number(eAmount.value||0) };
+  if(editingExpenseId){
+    const idx = expenses.findIndex(x=>x.id===editingExpenseId);
+    expenses[idx]=rec;
+  } else {
+    expenses.unshift(rec);
+  }
+  await saveExpenses();
+  resetExpenseForm();
+  renderExpenses();
+});
+document.getElementById('cancelExpenseEditBtn').addEventListener('click', resetExpenseForm);
+
+function resetExpenseForm(){
+  editingExpenseId=null;
+  eDate.value=todayStr(); eAmount.value=''; eDesc.value='';
+  document.getElementById('expenseFormTitle').textContent='Add Expense';
+  document.getElementById('cancelExpenseEditBtn').style.display='none';
+}
+function editExpense(id){
+  const e = expenses.find(x=>x.id===id); if(!e) return;
+  editingExpenseId=id;
+  eDate.value=e.date; eAmount.value=e.amount; eDesc.value=e.desc;
+  document.getElementById('expenseFormTitle').textContent='Edit Expense';
+  document.getElementById('cancelExpenseEditBtn').style.display='inline-block';
+  document.getElementById('panel-expenses').scrollIntoView({behavior:'smooth'});
+}
+async function deleteExpense(id){
+  if(!confirm('Delete this expense?')) return;
+  expenses = expenses.filter(x=>x.id!==id);
+  await saveExpenses();
+  renderExpenses();
+}
+function renderExpenses(){
+  const tbody = document.querySelector('#expenseTable tbody');
+  tbody.innerHTML='';
+  document.getElementById('expenseEmpty').style.display = expenses.length? 'none':'block';
+  expenses.slice().sort((a,b)=>b.date.localeCompare(a.date)).forEach(e=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${e.date}</td><td>${escapeHtml(e.desc)}</td><td>${fmt(e.amount)}</td>
+      <td class="row-actions"><button class="ghost" data-edit="${e.id}">Edit</button><button class="ghost danger" data-del="${e.id}">Delete</button></td>`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>editExpense(b.dataset.edit)));
+  tbody.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>deleteExpense(b.dataset.del)));
+
+  const total = expenses.reduce((s,e)=>s+Number(e.amount||0),0);
+  document.getElementById('expenseSummary').innerHTML = `
+    <div class="stat"><div class="label">Total Expenses</div><div class="num" style="color:var(--loss)">${fmt(total)}</div></div>
+    <div class="stat"><div class="label">Entries Logged</div><div class="num">${expenses.length}</div></div>
+  `;
+  renderGoals();
+}
+
+// ---- GOALS ----
+document.getElementById('iconPick').addEventListener('click', (ev)=>{
+  const btn = ev.target.closest('button'); if(!btn) return;
+  document.querySelectorAll('#iconPick button').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  selectedIcon = btn.dataset.icon;
+});
+document.querySelector('#iconPick button').classList.add('sel');
+
+document.getElementById('presetGoals').addEventListener('click', (ev)=>{
+  const btn = ev.target.closest('button'); if(!btn) return;
+  document.getElementById('g-name').value = btn.dataset.name;
+  selectedIcon = btn.dataset.icon;
+  document.querySelectorAll('#iconPick button').forEach(b=>b.classList.toggle('sel', b.dataset.icon===btn.dataset.icon));
+  document.getElementById('g-target').focus();
+});
+
+document.getElementById('saveGoalBtn').addEventListener('click', async ()=>{
+  const name = document.getElementById('g-name').value.trim();
+  const target = Number(document.getElementById('g-target').value||0);
+  if(!name || !target){ alert('Please enter a goal name and target price'); return; }
+  const rec = { id: editingGoalId || uid(), name, target, icon: selectedIcon };
+  if(editingGoalId){
+    const idx = goals.findIndex(x=>x.id===editingGoalId);
+    goals[idx]=rec;
+  } else {
+    goals.unshift(rec);
+  }
+  await saveGoals();
+  resetGoalForm();
+  renderGoals();
+});
+document.getElementById('cancelGoalEditBtn').addEventListener('click', resetGoalForm);
+
+function resetGoalForm(){
+  editingGoalId=null;
+  document.getElementById('g-name').value='';
+  document.getElementById('g-target').value='';
+  selectedIcon='🎯';
+  document.querySelectorAll('#iconPick button').forEach(b=>b.classList.remove('sel'));
+  document.querySelector('#iconPick button[data-icon="🎯"]').classList.add('sel');
+  document.getElementById('goalFormTitle').textContent='Add a Goal';
+  document.getElementById('cancelGoalEditBtn').style.display='none';
+}
+function editGoal(id){
+  const g = goals.find(x=>x.id===id); if(!g) return;
+  editingGoalId=id;
+  document.getElementById('g-name').value=g.name;
+  document.getElementById('g-target').value=g.target;
+  selectedIcon=g.icon;
+  document.querySelectorAll('#iconPick button').forEach(b=>b.classList.toggle('sel', b.dataset.icon===g.icon));
+  document.getElementById('goalFormTitle').textContent='Edit Goal';
+  document.getElementById('cancelGoalEditBtn').style.display='inline-block';
+  document.getElementById('panel-goals').scrollIntoView({behavior:'smooth'});
+}
+async function deleteGoal(id){
+  if(!confirm('Delete this goal?')) return;
+  goals = goals.filter(x=>x.id!==id);
+  await saveGoals();
+  renderGoals();
+}
+
+function netFund(){
+  const totalProfit = entries.reduce((s,e)=>s+computeProfit(e),0);
+  const totalExpenses = expenses.reduce((s,e)=>s+Number(e.amount||0),0);
+  return totalProfit - totalExpenses;
+}
+
+function renderGoals(){
+  const fund = netFund();
+  const fv = document.getElementById('netFundVal');
+  fv.textContent = fmt(fund);
+  document.getElementById('netFundPreview').classList.toggle('pos', fund>=0);
+  document.getElementById('netFundPreview').classList.toggle('neg', fund<0);
+
+  const list = document.getElementById('goalsList');
+  list.innerHTML='';
+  document.getElementById('goalsEmpty').style.display = goals.length? 'none':'block';
+  goals.forEach(g=>{
+    const pct = Math.max(0, Math.min(100, (fund/g.target)*100));
+    const remaining = Math.max(0, g.target - fund);
+    const div = document.createElement('div');
+    div.className='goal-card';
+    div.innerHTML = `
+      <div class="goal-head">
+        <div class="goal-name">${g.icon} ${escapeHtml(g.name)}</div>
+        <div class="row-actions">
+          <button class="ghost" data-edit="${g.id}">Edit</button>
+          <button class="ghost danger" data-del="${g.id}">Delete</button>
+        </div>
+      </div>
+      <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%"></div></div>
+      <div class="goal-meta">
+        <span>${pct.toFixed(1)}% funded</span>
+        <span>Target ${fmt(g.target)} · ${remaining>0? 'Need '+fmt(remaining)+' more' : 'Goal reached! 🎉'}</span>
+      </div>`;
+    list.appendChild(div);
+  });
+  list.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>editGoal(b.dataset.edit)));
+  list.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>deleteGoal(b.dataset.del)));
+}
+
+// ---- EXPORT ----
+function matchesPeriod(dateStr, period, refDateStr){
+  if(period==='all') return true;
+  const d = new Date(dateStr), ref = new Date(refDateStr || todayStr());
+  if(period==='daily') return dateStr === (refDateStr||todayStr());
+  if(period==='monthly') return d.getFullYear()===ref.getFullYear() && d.getMonth()===ref.getMonth();
+  if(period==='yearly') return d.getFullYear()===ref.getFullYear();
+  return true;
+}
+function downloadCSV(filename, rows){
+  const csv = rows.map(r=> r.map(cell=>{
+    const s = String(cell ?? '');
+    return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  }).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+document.getElementById('r-date').value = todayStr();
+document.getElementById('r-edate').value = todayStr();
+
+document.getElementById('exportEntriesBtn').addEventListener('click', ()=>{
+  const period = document.getElementById('r-period').value;
+  const refDate = document.getElementById('r-date').value;
+  const filtered = entries.filter(e=>matchesPeriod(e.date, period, refDate));
+  const rows = [['Date','Customer Name','Contact Number','Loan Amount','Takeover Amount','Takeover Charges','DSA Charges','Balance Amount','Profit']];
+  filtered.forEach(e=> rows.push([e.date,e.name,e.contact,e.loan,e.takeover,e.tcharges,e.dsa,e.balance,computeProfit(e)]));
+  if(filtered.length===0){ alert('No entries found for that period.'); return; }
+  downloadCSV(`khata-entries-${period}-${refDate}.csv`, rows);
+});
+document.getElementById('exportExpensesBtn').addEventListener('click', ()=>{
+  const period = document.getElementById('r-eperiod').value;
+  const refDate = document.getElementById('r-edate').value;
+  const filtered = expenses.filter(e=>matchesPeriod(e.date, period, refDate));
+  const rows = [['Date','Description','Amount']];
+  filtered.forEach(e=> rows.push([e.date,e.desc,e.amount]));
+  if(filtered.length===0){ alert('No expenses found for that period.'); return; }
+  downloadCSV(`khata-expenses-${period}-${refDate}.csv`, rows);
+});
+
+function escapeHtml(s){
+  return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderAll(){
+  renderEntries();
+  renderExpenses();
+  renderGoals();
+  updateProfitPreview();
+}
+
+load();
+</script>
+</body>
+</html>
